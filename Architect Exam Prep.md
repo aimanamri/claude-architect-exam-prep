@@ -9,3 +9,4 @@ Index for the **Claude Certified Architect – Foundations** study pack. Back to
 | 2 | [[claude-architect-exam-prep/01-full-study-notes\|Full study notes]] | All 10 Architect courses: must remember, syntax, debug priority, trade-offs and fixes |
 | 3 | [[claude-architect-exam-prep/02-commute-recall\|Commute recall cards]] | Short cards and flash lists |
 | 4 | [[claude-architect-exam-prep/03-practice-exams\|Practice exams]] | Sets A/B (32 each) and C/D advanced (30 each), with answers |
+| 5 | [[claude-architect-exam-prep/quiz-site/FORMAT\|Exam portal]] | Timed CCAR-F / CCAR-P practice site: https://aimanamri.github.io/claude-architect-exam-prep/ (run locally with `python3 server.py --open` in `quiz-site/`) |

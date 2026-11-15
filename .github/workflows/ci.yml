@@ -1,0 +1,50 @@
+# Checks the exam portal on every push and pull request: code syntax, PWA files,
+# a full static build, and every question set (no skipped questions, known tracks/courses).
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Syntax-check JavaScript
+        run: for f in quiz-site/app.js quiz-site/parser.js quiz-site/sw.js quiz-site/validate.js; do node --check "$f"; done
+
+      - name: Syntax-check Python
+        run: python3 -m py_compile quiz-site/server.py quiz-site/build_static.py quiz-site/og/make_icon.py
+
+      - name: Check config, manifest and icons
+        run: |
+          python3 -c "import json; json.load(open('quiz-site/quiz.config.json')); json.load(open('quiz-site/manifest.webmanifest'))"
+          python3 - <<'EOF'
+          import json, os, sys
+          m = json.load(open("quiz-site/manifest.webmanifest"))
+          missing = [i["src"] for i in m["icons"] if not os.path.isfile(os.path.join("quiz-site", i["src"]))]
+          for extra in ["icons/apple-touch-icon.png", "og-image.png"]:
+              if not os.path.isfile(os.path.join("quiz-site", extra)):
+                  missing.append(extra)
+          if missing:
+              sys.exit("Missing files: " + ", ".join(missing))
+          print("Manifest icons, apple-touch icon and og-image present")
+          EOF
+
+      - name: Build static site
+        run: python3 -B quiz-site/build_static.py --out _site
+
+      - name: Validate question sets
+        run: node quiz-site/validate.js _site/sets.json
